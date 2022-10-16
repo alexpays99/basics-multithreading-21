@@ -13,6 +13,8 @@ import com.artemchep.basics_multithreading.domain.Message;
 import com.artemchep.basics_multithreading.domain.WithMillis;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 public class MainActivity extends AppCompatActivity implements ThreadQueueInterface {
     private final String TAG = "MainActivity";
@@ -60,8 +62,10 @@ public class MainActivity extends AppCompatActivity implements ThreadQueueInterf
         // TODO: Start processing the message (please use CipherUtil#encrypt(...)) here.
         //       After it has been processed, send it to the #update(...) method.
 
-        threadQueue.addItemToQueue(message);
-        Log.d(TAG, "Thread: " + Thread.currentThread().getName());
+        synchronized (message) {
+            threadQueue.addItemToQueue(message);
+            Log.d(TAG, "Thread: " + Thread.currentThread().getName());
+        }
 
         // How it should look for the end user? Uncomment if you want to see. Please note that
         // you should not use poor decor view to send messages to UI thread.
@@ -100,7 +104,7 @@ public class MainActivity extends AppCompatActivity implements ThreadQueueInterf
             @Override
             public void run() {
                 update(messageWithMillis);
-                Log.d(TAG, "List updated in Thread: " + threadQueue.getName());
+                Log.d(TAG, "List updated in " + threadQueue.getName());
             }
         });
     }
