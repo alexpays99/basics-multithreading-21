@@ -43,6 +43,7 @@ public class MainActivity extends AppCompatActivity implements ThreadQueueInterf
                 .show();
     }
 
+
     public void onPushBtnClick(View view) throws InterruptedException {
         Message message = Message.generate();
         long startTime = System.currentTimeMillis();
