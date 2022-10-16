@@ -1,5 +1,6 @@
 package com.artemchep.basics_multithreading;
 
+import android.os.SystemClock;
 import android.util.Log;
 
 import com.artemchep.basics_multithreading.cipher.CipherUtil;
@@ -45,10 +46,10 @@ public class ThreadQueue extends Thread {
                     WithMillis<Message> messageWithMillis = queue.poll();
                     Message message = messageWithMillis.value;
 
-                    long startEncryptingTime = System.currentTimeMillis();
+                    long startEncryptingTime = SystemClock.currentThreadTimeMillis();
                     final String encrypt = CipherUtil.encrypt(message.plainText);
-                    long endEncryptingTime = System.currentTimeMillis() - startEncryptingTime;
-                    long duration = messageWithMillis.elapsedMillis + System.currentTimeMillis() + endEncryptingTime;
+                    long endEncryptingTime = SystemClock.currentThreadTimeMillis() - startEncryptingTime;
+                    long duration = messageWithMillis.elapsedMillis + SystemClock.currentThreadTimeMillis() + endEncryptingTime;
 
                     Message newMessage = message.copy(encrypt);
                     final WithMillis<Message> newMessageWithMillis = new WithMillis<>(newMessage, duration);

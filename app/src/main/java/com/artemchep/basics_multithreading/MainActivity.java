@@ -1,6 +1,7 @@
 package com.artemchep.basics_multithreading;
 
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.util.Log;
 import android.view.View;
 import androidx.annotation.UiThread;
@@ -46,7 +47,7 @@ public class MainActivity extends AppCompatActivity implements ThreadQueueInterf
 
     public void onPushBtnClick(View view) throws InterruptedException {
         Message message = Message.generate();
-        long startTime = System.currentTimeMillis();
+        long startTime = SystemClock.currentThreadTimeMillis();
         Log.d(TAG, "Current Time: " + startTime);
         insert(new WithMillis<>(message, startTime));
     }
