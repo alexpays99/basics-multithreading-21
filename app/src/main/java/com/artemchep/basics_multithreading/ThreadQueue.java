@@ -14,7 +14,7 @@ interface ThreadQueueInterface {
 }
 
 public class ThreadQueue extends Thread {
-    private final BlockingQueue<WithMillis<Message>> queue = new LinkedBlockingQueue<WithMillis<Message>>();
+    private BlockingQueue<WithMillis<Message>> queue = new LinkedBlockingQueue<WithMillis<Message>>();
     private Boolean isRunning = true;
     private ThreadQueueInterface callBack;
 
@@ -75,5 +75,8 @@ public class ThreadQueue extends Thread {
         }
     }
 
-
+    public void dispose() {
+        queue = null;
+        isRunning = false;
+    }
 }
