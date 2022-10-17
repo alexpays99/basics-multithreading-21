@@ -1,12 +1,12 @@
 package com.artemchep.basics_multithreading;
 
+import android.os.Handler;
+import android.os.Looper;
 import android.os.SystemClock;
 import android.util.Log;
-
 import com.artemchep.basics_multithreading.cipher.CipherUtil;
 import com.artemchep.basics_multithreading.domain.Message;
 import com.artemchep.basics_multithreading.domain.WithMillis;
-
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -16,7 +16,7 @@ interface ThreadQueueInterface {
 
 public class ThreadQueue extends Thread {
     private BlockingQueue<WithMillis<Message>> queue = new LinkedBlockingQueue<WithMillis<Message>>();
-    private Boolean isRunning = true;
+    private volatile Boolean isRunning = true;
     private ThreadQueueInterface callBack;
 
     ThreadQueue() {
@@ -31,7 +31,6 @@ public class ThreadQueue extends Thread {
     public void run() {
         while (isRunning) {
             Runnable encryptingTask = getRunnable();
-            encryptingTask.run();
             Log.d("ThreadQueue:", currentThread().getName());
         }
     }
@@ -47,6 +46,7 @@ public class ThreadQueue extends Thread {
                 }
             }
         }
+
         Runnable newTask = new Runnable() {
             @Override
             public void run() {
@@ -85,10 +85,8 @@ public class ThreadQueue extends Thread {
         }
     }
 
-    public void dispose() {
-        synchronized (this) {
-            queue = null;
-            isRunning = false;
-        }
+    public void dispoce() {
+        isRunning = false;
+        notify();
     }
 }
