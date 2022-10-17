@@ -50,9 +50,9 @@ public class MainActivity extends AppCompatActivity implements ThreadQueueInterf
     }
 
 
-    public void onPushBtnClick(View view) throws InterruptedException {
+    public void onPushBtnClick(View view) {
         Message message = Message.generate();
-        long startTime = SystemClock.currentThreadTimeMillis();
+        long startTime = SystemClock.elapsedRealtime();
         Log.d(TAG, "Current Time: " + startTime);
         insert(new WithMillis<>(message, startTime));
     }
@@ -67,6 +67,26 @@ public class MainActivity extends AppCompatActivity implements ThreadQueueInterf
 
         threadQueue.addItemToQueue(message);
         Log.d(TAG, "Thread: " + Thread.currentThread().getName());
+
+        //        threadQueue.addItemToQueue(new Runnable() {
+//            @Override
+//            public void run() {
+//                Log.d("ThreadQueue:", "Thread name: " + currentThread().getName());
+//
+//
+//                long startEncryptingTime = SystemClock.currentThreadTimeMillis();
+//                final String encrypt = CipherUtil.encrypt(message.value.plainText);
+//                long endEncryptingTime = SystemClock.currentThreadTimeMillis() - startEncryptingTime;
+//                long duration =  endEncryptingTime;
+//
+//                Message newMessage = message.value.copy(encrypt);
+//                final WithMillis<Message> newMessageWithMillis = new WithMillis<>(newMessage, duration);
+//                Log.d("ThreadQueue:", "Message: " + newMessage.cipherText);
+//                Log.d("ThreadQueue:", "WithMillis<Message>: " + newMessageWithMillis.elapsedMillis);
+//
+//                threadQueue.callBack.onListUpdated(newMessageWithMillis);
+//            }
+//        });
 
         // How it should look for the end user? Uncomment if you want to see. Please note that
         // you should not use poor decor view to send messages to UI thread.

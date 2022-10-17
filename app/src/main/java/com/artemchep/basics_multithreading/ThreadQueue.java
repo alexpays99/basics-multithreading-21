@@ -4,9 +4,11 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.SystemClock;
 import android.util.Log;
+
 import com.artemchep.basics_multithreading.cipher.CipherUtil;
 import com.artemchep.basics_multithreading.domain.Message;
 import com.artemchep.basics_multithreading.domain.WithMillis;
+
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -31,19 +33,18 @@ public class ThreadQueue extends Thread {
     public void run() {
         while (isRunning) {
             Runnable encryptingTask = getRunnable();
+            encryptingTask.run();
             Log.d("ThreadQueue:", currentThread().getName());
         }
     }
 
-    private Runnable getRunnable() {
+    private synchronized Runnable getRunnable() {
         while (queue.isEmpty()) {
-            synchronized (this) {
-                try {
-                    wait();
-                    Log.d("ThreadQueue:", currentThread().getName() + " is waiting");
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
+            try {
+                wait();
+                Log.d("ThreadQueue:", currentThread().getName() + " is waiting");
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
         }
 
@@ -55,15 +56,16 @@ public class ThreadQueue extends Thread {
                 WithMillis<Message> messageWithMillis = queue.poll();
                 Message message = messageWithMillis.value;
 
-                long startEncryptingTime = SystemClock.currentThreadTimeMillis();
                 final String encrypt = CipherUtil.encrypt(message.plainText);
-                long endEncryptingTime = SystemClock.currentThreadTimeMillis() - startEncryptingTime;
-                long duration = messageWithMillis.elapsedMillis + SystemClock.currentThreadTimeMillis() + endEncryptingTime;
 
                 Message newMessage = message.copy(encrypt);
+                long endEncryptingTime = SystemClock.elapsedRealtime();
+                long duration = endEncryptingTime - messageWithMillis.elapsedMillis;
+
                 final WithMillis<Message> newMessageWithMillis = new WithMillis<>(newMessage, duration);
                 Log.d("ThreadQueue:", "Message: " + newMessage.cipherText);
                 Log.d("ThreadQueue:", "WithMillis<Message>: " + newMessageWithMillis.elapsedMillis);
+                Log.d("ThreadQueue:", "Duration: " + duration);
 
                 callBack.onListUpdated(newMessageWithMillis);
             }
@@ -85,8 +87,8 @@ public class ThreadQueue extends Thread {
         }
     }
 
-    public void dispoce() {
+    public synchronized void dispoce() {
         isRunning = false;
-        notify();
+        notifyAll();
     }
 }
