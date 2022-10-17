@@ -4,13 +4,16 @@ import android.os.Bundle;
 import android.os.SystemClock;
 import android.util.Log;
 import android.view.View;
+
 import androidx.annotation.UiThread;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
 import com.artemchep.basics_multithreading.domain.Message;
 import com.artemchep.basics_multithreading.domain.WithMillis;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
@@ -55,17 +58,15 @@ public class MainActivity extends AppCompatActivity implements ThreadQueueInterf
     }
 
     @UiThread
-    public void insert(final WithMillis<Message> message) throws InterruptedException {
+    public void insert(final WithMillis<Message> message) {
         mList.add(message);
-        mAdapter.notifyItemInserted(   mList.size() - 1);
+        mAdapter.notifyItemInserted(mList.size() - 1);
 
         // TODO: Start processing the message (please use CipherUtil#encrypt(...)) here.
         //       After it has been processed, send it to the #update(...) method.
 
-        synchronized (message) {
-            threadQueue.addItemToQueue(message);
-            Log.d(TAG, "Thread: " + Thread.currentThread().getName());
-        }
+        threadQueue.addItemToQueue(message);
+        Log.d(TAG, "Thread: " + Thread.currentThread().getName());
 
         // How it should look for the end user? Uncomment if you want to see. Please note that
         // you should not use poor decor view to send messages to UI thread.
