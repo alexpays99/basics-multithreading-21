@@ -112,6 +112,7 @@ public class MainActivity extends AppCompatActivity implements ThreadQueueInterf
     @Override
     protected void onDestroy() {
         threadQueue.dispose();
+        Log.d(TAG, "onDestroy() method is Called, " + threadQueue.getName() + threadQueue.getState());
         super.onDestroy();
     }
 }

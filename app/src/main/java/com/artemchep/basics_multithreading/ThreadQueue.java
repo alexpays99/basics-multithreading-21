@@ -1,7 +1,5 @@
 package com.artemchep.basics_multithreading;
 
-import android.os.Handler;
-import android.os.Looper;
 import android.os.SystemClock;
 import android.util.Log;
 
@@ -33,48 +31,97 @@ public class ThreadQueue extends Thread {
     public void run() {
         while (isRunning) {
             Runnable encryptingTask = getRunnable();
-            encryptingTask.run();
-            Log.d("ThreadQueue:", currentThread().getName());
+//            encryptingTask.run();
+//            Runnable encryptingTask = null;
+//            synchronized (this) {
+//                if (queue.isEmpty()) {
+//                    try {
+//                        Log.d("ASD", "prepare for wait");
+//                        if (isRunning) {
+//                            this.wait();
+//                        }
+//                    } catch (InterruptedException e) {
+//                        e.printStackTrace();
+//                    }
+//                } else {
+//                    final WithMillis<Message> messageWithMillis = queue.poll();
+//                    if (messageWithMillis != null) {
+//                        Runnable newTask = new Runnable() {
+//                            @Override
+//                            public void run() {
+//                                Log.d("ThreadQueue:", "Thread name: " + currentThread().getName());
+//
+//                                Message message = messageWithMillis.value;
+//
+//                                final String encrypt = CipherUtil.encrypt(message.plainText);
+//
+//                                Message newMessage = message.copy(encrypt);
+//                                long endEncryptingTime = SystemClock.elapsedRealtime();
+//                                long duration = endEncryptingTime - messageWithMillis.elapsedMillis;
+//
+//                                final WithMillis<Message> newMessageWithMillis = new WithMillis<>(newMessage, duration);
+//                                Log.d("ThreadQueue:", "Message: " + newMessage.cipherText);
+//                                Log.d("ThreadQueue:", "WithMillis<Message>: " + newMessageWithMillis.elapsedMillis);
+//                                Log.d("ThreadQueue:", "Duration: " + duration);
+//
+//                                callBack.onListUpdated(newMessageWithMillis);
+//                            }
+//                        };
+//                        encryptingTask = newTask;
+//                    }
+//                }
+//            }
+            try {
+                encryptingTask.run();
+                Log.d("ThreadQueue:", currentThread().getName());
+            } catch (NullPointerException e) {
+                Log.d("ThreadQueue:", "exception: " + e);
+            }
         }
-        Log.d("ThreadQueue:", "dfsgdfsjgds fgrun() " + currentThread().getState());
+        Log.d("ThreadQueue:", "run() " + currentThread().getState());
     }
 
     private Runnable getRunnable() {
+        Runnable encryptingTask = null;
         synchronized (this) {
             if (queue.isEmpty()) {
                 try {
+                    Log.d("ASD", "prepare for wait");
                     if (isRunning) {
-                        wait();
-                        Log.d("ThreadQueue:", currentThread().getName() + " is waiting");
+                        this.wait();
                     }
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-            }
+            } else {
+                final WithMillis<Message> messageWithMillis = queue.poll();
+                if (messageWithMillis != null) {
+                    Runnable newTask = new Runnable() {
+                        @Override
+                        public void run() {
+                            Log.d("ThreadQueue:", "Thread name: " + currentThread().getName());
 
-            Runnable newTask = new Runnable() {
-                @Override
-                public void run() {
-                    Log.d("ThreadQueue:", "Thread name: " + currentThread().getName());
+//                            WithMillis<Message> messageWithMillis = queue.poll();
+                            Message message = messageWithMillis.value;
 
-                    WithMillis<Message> messageWithMillis = queue.poll();
-                    Message message = messageWithMillis.value;
+                            final String encrypt = CipherUtil.encrypt(message.plainText);
 
-                    final String encrypt = CipherUtil.encrypt(message.plainText);
+                            Message newMessage = message.copy(encrypt);
+                            long endEncryptingTime = SystemClock.elapsedRealtime();
+                            long duration = endEncryptingTime - messageWithMillis.elapsedMillis;
 
-                    Message newMessage = message.copy(encrypt);
-                    long endEncryptingTime = SystemClock.elapsedRealtime();
-                    long duration = endEncryptingTime - messageWithMillis.elapsedMillis;
+                            final WithMillis<Message> newMessageWithMillis = new WithMillis<>(newMessage, duration);
+                            Log.d("ThreadQueue:", "Message: " + newMessage.cipherText);
+                            Log.d("ThreadQueue:", "WithMillis<Message>: " + newMessageWithMillis.elapsedMillis);
+                            Log.d("ThreadQueue:", "Duration: " + duration);
 
-                    final WithMillis<Message> newMessageWithMillis = new WithMillis<>(newMessage, duration);
-                    Log.d("ThreadQueue:", "Message: " + newMessage.cipherText);
-                    Log.d("ThreadQueue:", "WithMillis<Message>: " + newMessageWithMillis.elapsedMillis);
-                    Log.d("ThreadQueue:", "Duration: " + duration);
-
-                    callBack.onListUpdated(newMessageWithMillis);
+                            callBack.onListUpdated(newMessageWithMillis);
+                        }
+                    };
+                    encryptingTask = newTask;
                 }
-            };
-            return newTask;
+            }
+            return encryptingTask;
         }
     }
 
