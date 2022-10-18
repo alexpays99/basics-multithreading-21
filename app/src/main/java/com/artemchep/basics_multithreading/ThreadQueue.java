@@ -87,10 +87,5 @@ public class ThreadQueue extends Thread {
         }
     }
 
-    public void dispose() {
-        isRunning = false;
-        synchronized (this) {
-            this.notifyAll();
-        }
-    }
+
 }
