@@ -49,7 +49,6 @@ public class MainActivity extends AppCompatActivity implements ThreadQueueInterf
                 .show();
     }
 
-
     public void onPushBtnClick(View view) {
         Message message = Message.generate();
         long startTime = SystemClock.elapsedRealtime();
@@ -112,8 +111,7 @@ public class MainActivity extends AppCompatActivity implements ThreadQueueInterf
 
     @Override
     protected void onDestroy() {
+        threadQueue.dispose();
         super.onDestroy();
-        threadQueue.interrupt();
-        Log.d("ThreadQueue:", "Thread: " + threadQueue.getState());
     }
 }
